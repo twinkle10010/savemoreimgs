@@ -1,0 +1,124 @@
+保存图片
+
+	try{
+					yysmbxService.save(pd);
+					map.put("code", 2001);//文字保存成功 返回2001
+				}catch(Exception e){
+					e.printStackTrace();
+				 	map.put("code", 202);//传输失败 code返回202
+				}
+		     }
+			try {//临时图片查询
+				pd2 = yysmbxService.findlstpurl(pd);
+				System.out.println(pd2);				
+				pd.put("LSTPURL", pd2.getString("LSTPURL"));
+				map.put("code", 2002);//图片查询成功 返回2002
+			} catch (Exception e) {
+				e.printStackTrace();
+			} 
+			try {//图片保存
+				yysmbxService.saveimgsurl(pd);
+				map.put("code", 2003);//图片保存成功 code返回2003
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			try {//删除临时图片路径
+				yysmbxService.dellstpurl(pd);
+			 	map.put("code", 200);//完成 code返回200  ，跳转页面,删除临时数据
+			} catch (Exception e) {
+				e.printStackTrace();
+        
+        
+ 微信消息推送
+ 
+        
+   	/**微信消息模板推送(第二步(3))
+   	 * 
+   	 * 分为3个步骤 
+   	 * 1.获取access_token(https get)请求地址：https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=&secret=;参数：appid ，secret (在公众平台 开发--> 基本配置 可以看到）
+   	 * 2.获取模板template_id(https post)请求地址：https://api.weixin.qq.com/cgi-bin/template/api_add_template?access_token=
+   	 * 3.发送消息(https post)请求地址：https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=
+   	 */
+   	@RequestMapping(value="/demomessage")
+   	@ResponseBody	
+   	public void demomessage(String openid, String SBMC, String YYMC, String BHR, String BXLXFS, String CJSJ) throws Exception{
+   	 Map<String,Object> map = new HashMap<String, Object>();
+   	 Map<String,TemplateData> mapdata = new HashMap<String,TemplateData>();
+   	 String APPID = "XXX";
+   	 String SECRET = "XXX";
+  	 // 获取基础支持的access_token
+  	 System.out.println("APPID:"+APPID+";SECRET:"+SECRET);
+  	 String access_token = getAccess_tokendb(APPID, SECRET);
+  	 // 发送模板消息   	   
+  	 String resultUrl2 = "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token="+access_token;
+   	   // 封装基础数据
+   	 WechatTemplate wechatTemplate = new WechatTemplate();
+   	 wechatTemplate.setTemplate_id("jNi-_qKzfuB1Cwy9lC2JnSCqVVkz_cKpK5TM68Ir43Y");
+   	 wechatTemplate.setTouser(openid);
+   	 wechatTemplate.setUrl("http://172.10.0.60:8080/#/engineer_main?VNK=09d17be6&openid="+openid);
+   	 // 封装模板数据
+   	 TemplateData first = new TemplateData();
+   	 first.setValue("您有新的维修任务需要处理，请及时查看");
+   	 first.setColor("#173177");
+   	 mapdata.put("first", first);
+   	    
+   	 TemplateData keyword1 = new TemplateData();
+   	 keyword1.setValue(YYMC);
+     keyword1.setColor("#173177");
+     mapdata.put("keyword1", keyword1);
+   	 
+     TemplateData keyword2 = new TemplateData();
+     keyword2.setValue(SBMC);
+     keyword2.setColor("#173177");
+     mapdata.put("keyword2", keyword2);
+   	    
+     TemplateData keyword3 = new TemplateData();
+     keyword3.setValue(BHR);
+   	 keyword3.setColor("#173177");
+     mapdata.put("keyword3", keyword3);
+   	    
+     TemplateData keyword4 = new TemplateData();
+     keyword4.setValue(BXLXFS);
+     keyword4.setColor("#173177");
+   	 mapdata.put("keyword4", keyword4);
+   	    
+   	 TemplateData keyword5 = new TemplateData();
+   	 keyword5.setValue(CJSJ);
+   	 keyword5.setColor("#173177");
+     mapdata.put("keyword5", keyword5);
+   	 
+     TemplateData remark = new TemplateData();
+     remark.setValue("查看详情>>");
+     remark.setColor("#173177");
+     mapdata.put("remark", remark);
+   	 
+   	 wechatTemplate.setData(mapdata);
+     try {
+		logger.info(JSON.toJSONString(wechatTemplate));
+		JSONObject resultJson = Weixin.httpRequst(resultUrl2, "POST", JSON.toJSONString(wechatTemplate));
+		logger.info(JSON.toJSONString(resultJson));
+     } catch (Exception e) {
+    	 e.printStackTrace();
+     	}   		
+   	 }
+
+选择工程师
+
+    try {
+			List<String> allopenid = yysmbxService.findgcs(TYSHXYDM);
+			map.put("OPENID", allopenid);
+			String[] strArray = allopenid.toArray(new String[allopenid.size()]);  
+			System.out.println(Arrays.toString(strArray));
+			for(int j = 0; j < strArray.length; j++){
+				int i =j+1 ;
+				System.out.print("第"+i+"条:");
+//				System.out.println(strArray[j]);
+				if("".equals(strArray[j])){
+					System.out.println("内容为空");
+				}else{
+					System.out.println(strArray[j]);
+					String OPENID = strArray[j];
+					demomessage();
+				}
+			}
+        
